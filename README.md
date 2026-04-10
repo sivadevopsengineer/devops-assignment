@@ -95,7 +95,7 @@ Implemented using GitHub Actions.
 Docker images are stored in Docker Hub:
 
 ```
-https://hub.docker.com/r/<your-username>/devops-app
+https://hub.docker.com/r/sivachikkala22/devops-app
 ```
 
 ---
@@ -114,7 +114,7 @@ https://hub.docker.com/r/<your-username>/devops-app
 ### AWS App:
 
 ```
-http://<ALB-DNS>:3000
+http://app-alb-1674674274.ap-south-1.elb.amazonaws.com/:3000
 ```
 
 ### GCP API:
@@ -140,17 +140,6 @@ http://<GCP-IP>:5000/predict
 
 ---
 
-## Demo
-
-A demo video (5–10 minutes) is included showing:
-
-* Infrastructure setup
-* Application running
-* CI/CD pipeline execution
-* Docker deployment
-
----
-
 ## Evaluation Highlights
 
 * Multi-cloud integration (AWS + GCP)
@@ -163,7 +152,7 @@ A demo video (5–10 minutes) is included showing:
 
 ## Conclusion
 
-This project showcases real-world DevOps practices including:
+This project showcases real-world DevOps including:
 
 * Infrastructure design
 * Automation
