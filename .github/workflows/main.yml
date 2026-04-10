@@ -27,8 +27,8 @@ jobs:
 
     # Tag Image
     - name: Tag Image
-      run: docker tag devops-app ${{ secrets.DOCKER_USERNAME }}/devops-app
+      run: docker tag devops-app ${{ secrets.DOCKER_USERNAME }}/devops-app:latest
 
     # Push Image
     - name: Push Image
-      run: docker push ${{ secrets.DOCKER_USERNAME }}/devops-app
+      run: docker push ${{ secrets.DOCKER_USERNAME }}/devops-app:latest
