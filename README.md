@@ -1,166 +1,114 @@
-# Multi-Cloud DevOps Architecture (AWS + GCP)
+Multi-Cloud DevOps Architecture (AWS + GCP)
+ Project Overview
 
-## Project Overview
+This project demonstrates a production-style multi-cloud DevOps architecture integrating:
 
-This project demonstrates a **multi-cloud DevOps architecture** integrating AWS and GCP with secure networking, containerization, and CI/CD automation.
+AWS (VPC, EC2, ALB, VPN/Bastion)
+GCP (VM for ML API)
+Docker (containerization)
+GitHub Actions (CI/CD automation)
+Docker Hub (container registry)
 
-### Key Features
+The system is designed to simulate a real-world secure deployment pipeline with private networking and automated delivery.
 
-* Secure access via VPN
-* AWS-based scalable Node.js application
-* GCP-based ML API service
-* Dockerized applications
-* Automated CI/CD pipeline using GitHub Actions
-* Centralized container registry (Docker Hub)
+Architecture
+ Flow
+User
+  ↓
+VPN Server (AWS EC2 - Public)
+  ↓
+Private VPC (AWS)
+  ↓
+Application Load Balancer
+  ↓
+EC2 (Private Subnet - Docker App)
+  ↓
+Calls →
+GCP VM (ML API - Docker)
+ CI/CD Pipeline
+GitHub → GitHub Actions → Docker Hub → AWS Deployment via VPN (SSH)
+ Key Features
+✅ Secure access using VPN/Bastion host
+✅ Private EC2 instances (no public IP)
+✅ Dockerized Node.js application
+✅ Cross-cloud communication (AWS → GCP)
+✅ Fully automated CI/CD pipeline
+✅ Zero manual deployment
+ Tech Stack
+Layer	Technology
+Cloud	AWS + GCP
+Compute	EC2
+Networking	VPC, ALB, VPN
+Containers	Docker
+CI/CD	GitHub Actions
+Registry	Docker Hub
+Backend	Node.js
+  CI/CD Pipeline
+  Pipeline Steps
+Checkout code
+Build Docker image
+Run basic test
+Login to Docker Hub
+Push Docker image
+Deploy to AWS EC2 via VPN (Bastion SSH)
+  GitHub Actions File
 
----
+Located at:
 
-## Architecture Overview
+.github/workflows/main.yml
+     Required Secrets
+Secret Name	Description
+DOCKER_USERNAME	Docker Hub username
+DOCKER_PASSWORD	Docker Hub password/token
+EC2_HOST	Public IP of VPN/Bastion
+EC2_USERNAME	EC2 username (ubuntu)
+EC2_SSH_KEY	Private key for SSH
+    Deployment Process
+Git push triggers pipeline
+Docker image is built & pushed to Docker Hub
+GitHub Actions connects to VPN server
+VPN server SSH into private EC2
+Application container is deployed automatically
+   Application
+Node.js app running inside Docker
+Exposed on port 3000
+Accessible via ALB or VPN
+   GCP Integration
+Separate VM running ML API (Dockerized)
+AWS app communicates via private/internal networking
+  Setup Instructions
+1. Clone Repository
+git clone https://github.com/<your-username>/devops-assignment.git
+cd devops-assignment
+2. Build Docker Image
+docker build -t devops-app .
+3. Run Locally
+docker run -d -p 3000:3000 devops-app
+   SSH Access Flow
+# Step 1: Connect to VPN/Bastion
+ssh -i key.pem ubuntu@<VPN_PUBLIC_IP>
 
-### Flow
+# Step 2: Connect to Private EC2
+ssh -i key.pem ubuntu@<PRIVATE_IP>
+      Deliverables
+✅ GitHub Repository
+✅ Architecture Diagram
+✅ CI/CD Pipeline
+✅ Deployment Setup
+✅ Multi-cloud integration
+  Notes
+Private EC2 is not publicly accessible
+Deployment is done securely via VPN
+Docker containers are rebuilt on every push
+  Author
 
-User → VPN Server → AWS VPC → ALB → EC2 (Node.js App) → GCP VM (ML API)
+Siva DevOps Engineer
 
-### CI/CD Flow
+ Conclusion
 
-GitHub → GitHub Actions → Docker Hub → Deploy to AWS & GCP
+This project showcases:
 
----
-
-## AWS Infrastructure
-
-### Components:
-
-* VPC (10.0.0.0/16)
-* Public Subnet (VPN Server)
-* Private Subnet (Application Servers)
-* Application Load Balancer (ALB)
-* EC2 Auto Scaling Group
-
-### Features:
-
-* Secure private networking
-* Load balancing for high availability
-* Scalable Node.js backend
-
----
-
-## GCP Infrastructure
-
-### Components:
-
-* Compute Engine VM
-* ML API (Docker container)
-
-### Features:
-
-* Lightweight inference API
-* Secure access (restricted firewall rules)
-* Integrated with AWS application
-
----
-
-## Containerization
-
-### Applications:
-
-* AWS Node.js API
-* GCP ML API
-
-### Docker Features:
-
-* Lightweight images
-* Consistent runtime environments
-* Easy deployment across clouds
-
----
-
-## CI/CD Pipeline
-
-Implemented using GitHub Actions.
-
-### Workflow:
-
-1. Code push to repository
-2. Build Docker image
-3. Run basic test
-4. Login to Docker Hub
-5. Tag Docker image
-6. Push image to Docker Hub
-
----
-
-## Docker Hub Repository
-
-Docker images are stored in Docker Hub:
-
-```
-https://hub.docker.com/r/sivachikkala22/devops-app
-```
-
----
-
-## Security
-
-* VPN-based access to private infrastructure
-* Restricted Security Groups in AWS
-* GCP firewall rules allow only trusted IPs
-* No direct public access to private services
-
----
-
-## Testing
-
-### AWS App:
-
-```
-http://app-alb-1674674274.ap-south-1.elb.amazonaws.com/:3000
-```
-
-### GCP API:
-
-```
-http://<GCP-IP>:5000/predict
-```
-
----
-
-## Project Structure
-
-```
-.
-├── app.js
-├── Dockerfile
-├── package.json
-├── .github/
-│   └── workflows/
-│       └── main.yml
-└── README.md
-```
-
----
-
-## Evaluation Highlights
-
-* Multi-cloud integration (AWS + GCP)
-* Secure networking (VPN + private subnets)
-* Containerized applications
-* Automated CI/CD pipeline
-* Scalable and production-ready design
-
----
-
-## Conclusion
-
-This project showcases real-world DevOps including:
-
-* Infrastructure design
-* Automation
-* Cloud integration
-* Security best practices
-
----
-
-## Author
-
-DevOps Engineer siva chikkala
+Real-world DevOps practices
+Secure infrastructure design
+Multi-cloud integration
+Automated CI/CD pipeline
