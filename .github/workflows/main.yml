@@ -34,17 +34,24 @@ jobs:
     - name: Push Image
       run: docker push ${{ secrets.DOCKER_USERNAME }}/devops-app:latest
 
-    # 7. Deploy via VPN (Bastion)
+    # 7. Deploy via VPN (Bastion → Private EC2)
     - name: Deploy via VPN (Bastion)
       uses: appleboy/ssh-action@v1.0.0
       with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ${{ secrets.EC2_USERNAME }}
+        host: ${{ secrets.EC2_HOST }}          # VPN Public IP
+        username: ${{ secrets.EC2_USERNAME }}  # usually ubuntu
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
+          # Create key inside VPN session
+          echo "${{ secrets.EC2_SSH_KEY }}" > key.pem
+          chmod 400 key.pem
+
+          # SSH into private EC2 and deploy
           ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@10.0.2.157 << 'EOF'
             docker pull ${{ secrets.DOCKER_USERNAME }}/devops-app:latest
             docker stop app || true
             docker rm app || true
+            docker run -d -p 3000:3000 --name app ${{ secrets.DOCKER_USERNAME }}/devops-app:latest
+          EOFtrue
             docker run -d -p 3000:3000 --name app ${{ secrets.DOCKER_USERNAME }}/devops-app:latest
           EOF
