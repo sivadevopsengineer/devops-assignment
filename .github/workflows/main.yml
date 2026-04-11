@@ -30,19 +30,21 @@ jobs:
     - name: Tag Image
       run: docker tag devops-app ${{ secrets.DOCKER_USERNAME }}/devops-app:latest
 
-    # 6. Push Image (IMPORTANT: before deploy)
+    # 6. Push Image
     - name: Push Image
       run: docker push ${{ secrets.DOCKER_USERNAME }}/devops-app:latest
 
-    # 7. Deploy to AWS EC2
-    - name: Deploy to AWS EC2
+    # 7. Deploy via VPN (Bastion Host)
+    - name: Deploy via VPN (Bastion Host)
       uses: appleboy/ssh-action@v1.0.0
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          docker pull ${{ secrets.DOCKER_USERNAME }}/devops-app:latest
-          docker stop app || true
-          docker rm app || true
-          docker run -d -p 3000:3000 --name app ${{ secrets.DOCKER_USERNAME }}/devops-app:latest
+          ssh -i devops_key.pem -o StrictHostKeyChecking=no ubuntu@10.0.2.157 << 'EOF'
+            docker pull ${{ secrets.DOCKER_USERNAME }}/devops-app:latest
+            docker stop app || true
+            docker rm app || true
+            docker run -d -p 3000:3000 --name app ${{ secrets.DOCKER_USERNAME }}/devops-app:latest
+          EOF
