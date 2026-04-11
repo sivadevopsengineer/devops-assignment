@@ -34,15 +34,15 @@ jobs:
     - name: Push Image
       run: docker push ${{ secrets.DOCKER_USERNAME }}/devops-app:latest
 
-    # 7. Deploy via VPN (Bastion Host)
-    - name: Deploy via VPN (Bastion Host)
+    # 7. Deploy via VPN (Bastion)
+    - name: Deploy via VPN (Bastion)
       uses: appleboy/ssh-action@v1.0.0
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          ssh -i devops_key.pem -o StrictHostKeyChecking=no ubuntu@10.0.2.157 << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@10.0.2.157 << 'EOF'
             docker pull ${{ secrets.DOCKER_USERNAME }}/devops-app:latest
             docker stop app || true
             docker rm app || true
