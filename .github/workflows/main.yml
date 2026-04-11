@@ -5,30 +5,44 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build-test-push:
+  build-test-push-deploy:
     runs-on: ubuntu-latest
 
     steps:
 
+    # 1. Checkout code
     - name: Checkout Code
       uses: actions/checkout@v4
 
-    # Build Docker Image
+    # 2. Build Docker Image
     - name: Build Docker Image
       run: docker build -t devops-app .
 
-    # Basic Test
+    # 3. Basic Test
     - name: Run Test
       run: echo "App build successful"
 
-    # Login to Docker Hub
+    # 4. Login to Docker Hub
     - name: Docker Login
       run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-    # Tag Image
+    # 5. Tag Image
     - name: Tag Image
       run: docker tag devops-app ${{ secrets.DOCKER_USERNAME }}/devops-app:latest
 
-    # Push Image
+    # 6. Push Image (IMPORTANT: before deploy)
     - name: Push Image
       run: docker push ${{ secrets.DOCKER_USERNAME }}/devops-app:latest
+
+    # 7. Deploy to AWS EC2
+    - name: Deploy to AWS EC2
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USERNAME }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          docker pull ${{ secrets.DOCKER_USERNAME }}/devops-app:latest
+          docker stop app || true
+          docker rm app || true
+          docker run -d -p 3000:3000 --name app ${{ secrets.DOCKER_USERNAME }}/devops-app:latest
