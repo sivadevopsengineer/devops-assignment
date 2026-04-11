@@ -10,31 +10,24 @@ jobs:
 
     steps:
 
-    # 1. Checkout code
     - name: Checkout Code
       uses: actions/checkout@v4
 
-    # 2. Build Docker Image
     - name: Build Docker Image
       run: docker build -t devops-app .
 
-    # 3. Basic Test
     - name: Run Test
       run: echo "App build successful"
 
-    # 4. Login to Docker Hub
     - name: Docker Login
       run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-    # 5. Tag Image
     - name: Tag Image
       run: docker tag devops-app ${{ secrets.DOCKER_USERNAME }}/devops-app:latest
 
-    # 6. Push Image
     - name: Push Image
       run: docker push ${{ secrets.DOCKER_USERNAME }}/devops-app:latest
 
-    # 7. Deploy via VPN (Bastion → Private EC2)
     - name: Deploy via VPN (Bastion)
       uses: appleboy/ssh-action@v1.0.0
       with:
@@ -46,11 +39,14 @@ jobs:
           chmod 400 key.pem
 
           ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@10.0.2.157 << 'EOF'
-            echo "Stopping old container..."
-            docker stop app || true
-            
-            echo "Removing old container..."
-            docker rm app || true
+            echo "Killing any process using port 3000..."
+            sudo fuser -k 3000/tcp || true
+
+            echo "Stopping all containers..."
+            docker ps -aq | xargs -r docker stop
+
+            echo "Removing all containers..."
+            docker ps -aq | xargs -r docker rm
 
             echo "Pulling latest image..."
             docker pull ${{ secrets.DOCKER_USERNAME }}/devops-app:latest
